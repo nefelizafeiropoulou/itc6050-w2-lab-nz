@@ -19,17 +19,17 @@ CREATE TABLE sales_record (
 -- 1. 1NF violation: 
 -- The multi-valued column is customer_phones, because the comment indicates it stores multiple phone numbers 
 -- in a single field as a comma-separated list (e.g., '555-1212, 555-3434'). 
--- That means one row can contain multiple values for the same attribute, violating first normal form (1NF).
+-- That means one row can contain multiple values for the same attribute, violating 1NF.
 
 -- 2. Functional dependency 1:
--- 3NF violation: product_name → product_category, product_price.
--- Since sale_id → product_name, category and price depend on sale_id transitively
--- through a non-key attribute (product_name), violating 3NF.
+-- 3NF violation: product_name, product_category, product_price
+-- Since product_name, category and price depend on sale_id transitively
+-- through a non-key attribute (product_name), 3NF gets violated.
 
 -- 3. Functional dependency 2:
--- 3NF violation: customer_email → customer_name, customer_city, customer_country.
--- Since sale_id → customer_email, these attributes depend transitively on sale_id
--- through a non-key attribute (customer_email), which violates 3NF.
+-- 3NF violation: customer_email, customer_name, customer_city, customer_country
+-- Since customer_email, name, city and country depend transitively on sale_id
+-- through a non-key attribute (customer_email), 3NF gets violated.
 
 -- 4. Update anomaly example:
 -- If a product price changes, it must be updated in every row of Sales_Record
@@ -50,7 +50,7 @@ CREATE TABLE customer (
     country VARCHAR(60)
 );
 
--- CUSTOMER PHONE (multi-valued attribute removed from customer)
+-- CUSTOMER PHONE 
 CREATE TABLE customer_phone (
     customer_id BIGINT NOT NULL,
     phone VARCHAR(30) NOT NULL,
@@ -80,12 +80,8 @@ CREATE TABLE sale_item (
     sale_id BIGINT NOT NULL,
     product_id BIGINT NOT NULL,
     quantity INT NOT NULL CHECK (quantity > 0),
-
-    -- price captured at time of sale (prevents historical inconsistency when product price changes)
     unit_price_at_sale NUMERIC(10,2) NOT NULL,
-
     line_total NUMERIC(10,2) NOT NULL,
-
     PRIMARY KEY (sale_id, product_id),
     FOREIGN KEY (sale_id) REFERENCES sale(sale_id)
         ON DELETE CASCADE,
